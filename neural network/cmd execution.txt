@@ -1,3 +1,0 @@
-nvcc -arch=sm_50 -rdc=true perceptron.cu -o perceptron
-
-g++ -Wall -pg perceptron.cpp -o perceptron_cpu
