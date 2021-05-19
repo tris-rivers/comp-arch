@@ -9,5 +9,5 @@ The repository is split into two folders:
 Related Links:
 * [JAX:Autograd and XLA](https://github.com/google/jax)
 * [CUDA Installation  Guide](https://docs.nvidia.com/cuda/index.html#installation-guides)
-* [Slides](https://www.canva.com/design/DAEdlApg2rs/share/preview?token=HIbXGdYIDf6TnqRQOxoQpQ&role=EDITOR&utm_content=DAEdlApg2rs&utm_campaign=designshare&utm_medium=link&utm_source=sharebutton)
+* [Slides](https://www.canva.com/design/DAEdlApg2rs/1EWZrr90G-On5Wp71CJL0g/view?utm_content=DAEdlApg2rs&utm_campaign=designshare&utm_medium=link&utm_source=sharebutton)
 * [Introduction to JAX Code](https://colab.research.google.com/drive/1hO8exV7vQ-bkmysIMFQBXwn04vqupNdO)
