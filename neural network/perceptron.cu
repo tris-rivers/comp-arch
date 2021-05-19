@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-__global__ void kMartixByMatrixElementwise(const int nThreads, const float *m1, const float *m2, float *output) {
+__global__ void kMatrixByMatrixElementwise(const int nThreads, const float *m1, const float *m2, float *output) {
     /*  Computes the product of two arrays (elementwise multiplication).
      Inputs:
      m1: array
@@ -15,14 +15,14 @@ __global__ void kMartixByMatrixElementwise(const int nThreads, const float *m1, 
 	  }
 }
 
-__device__ float* dMartixByMatrixElementwise(const float *m1, const float *m2, float *output, const int width, const int height){
+__device__ float* dMatrixByMatrixElementwise(const float *m1, const float *m2, float *output, const int width, const int height){
 
-	kMartixByMatrixElementwise <<< width, height >>> ( width * height, m1, m2, output );
+	kMatrixByMatrixElementwise <<< width, height >>> ( width * height, m1, m2, output );
     cudaDeviceSynchronize();
     return output;
 }
 
-__global__ void kMartixSubstractMatrix(const int nThreads, const float *m1, const float *m2, float *output) {
+__global__ void kMatrixSubtractMatrix(const int nThreads, const float *m1, const float *m2, float *output) {
     /*  Computes the (elementwise) difference between two arrays
      Inputs:
      m1: array
@@ -38,9 +38,9 @@ __global__ void kMartixSubstractMatrix(const int nThreads, const float *m1, cons
 	  }
 }
 
-__device__ float* dMartixSubstractMatrix(const float *m1, const float *m2, float *output, const int width, const int height){
+__device__ float* dMatrixSubtractMatrix(const float *m1, const float *m2, float *output, const int width, const int height){
 
-	kMartixSubstractMatrix <<< width, height >>> ( width * height, m1, m2, output );
+	kMatrixSubtractMatrix <<< width, height >>> ( width * height, m1, m2, output );
     cudaDeviceSynchronize();
     return output;
 }
@@ -125,6 +125,8 @@ __device__ float* dDot(const float *m1, const float *m2, float *output, const in
 	return output;
 }
 
+
+//matrix multiply for backpropagation
 __global__ void kDot_m1_m2T(const int nThreads, const float *m1, const float *m2, float *output, const int m1_columns, const int m2_rows ){
 	/*  Updates the output matrix with the product of two matrices: m1 and m2 transposed.
 	   	Inputs:
@@ -227,8 +229,8 @@ __global__ void kFit(	const float* X, const int X_w, const int X_h,
 
         dSigmoid(dDot(X, W0, l1, X_h, X_w, l1_w), l1, X_h, l1_w);
         dSigmoid(dDot(l1, W1, pred, X_h, l1_w, y_w), pred, X_h, y_w);
-        dMartixByMatrixElementwise(dMartixSubstractMatrix(y, pred, pred_d, X_h, y_w), dSigmoid_d(pred, buffer, X_h, y_w), pred_d, X_h, y_w );
-        dMartixByMatrixElementwise(dDot_m1_m2T(pred_d, W1, l_1_d, X_h, y_w, l1_w), dSigmoid_d(l1, buffer, X_h, l1_w), l_1_d, X_h, l1_w);
+        dMatrixByMatrixElementwise(dMatrixSubtractMatrix(y, pred, pred_d, X_h, y_w), dSigmoid_d(pred, buffer, X_h, y_w), pred_d, X_h, y_w );
+        dMatrixByMatrixElementwise(dDot_m1_m2T(pred_d, W1, l_1_d, X_h, y_w, l1_w), dSigmoid_d(l1, buffer, X_h, l1_w), l_1_d, X_h, l1_w);
         dDot_m1T_m2( l1, pred_d, W1, X_h, l1_w, y_w );
         dDot_m1T_m2( X, l_1_d, W0, X_h, X_w, l1_w );
     }
@@ -236,8 +238,12 @@ __global__ void kFit(	const float* X, const int X_w, const int X_h,
 
 int main(void){
 
+
+	//number of training data
 	const int TRAINING_SIZE = 4;
+	//numberof features
 	const int TRAINING_DIM = 4;
+	//number of neurons
 	const int L1_SIZE = 8;
 
 	// X, the first 4 lines from Iris dataset
@@ -325,9 +331,6 @@ int main(void){
 	cudaMalloc(&d_pred_delta, y_size);
 	cudaMemcpy(d_pred_delta, h_pred_delta, y_size, cudaMemcpyHostToDevice);
 
-    //int blockSize = 32;
-    //int numBlocks = (X_size + blockSize - 1) / blockSize;
-    //std:cout << "Number of Blocks:" << numBlocks << std::endl;
 
 	kFit <<< 1, 1 >>> (	d_X, TRAINING_DIM, TRAINING_SIZE,
 						d_y, 1,

@@ -2,6 +2,8 @@
 #include <vector>
 #include <math.h>
 #include <chrono>
+#include <time.h>
+
 
 using std::vector;
 using std::cout;
@@ -191,7 +193,9 @@ void print ( const vector <float>& m, int n_rows, int n_columns ) {
 }
 
 int main(int argc, const char * argv[]) {
-    
+    //start time for initializing arrays
+    clock_t start = clock();
+
     for (unsigned i = 0; i != 50; ++i) {
         
         vector<float> pred = sigmoid(dot(X, W, 4, 4, 1 ) );
@@ -205,6 +209,10 @@ int main(int argc, const char * argv[]) {
         };
     };
 
+    clock_t end = clock();
+    
+    double elapsed_time = (end-start)/(double)CLOCKS_PER_SEC;
+    std::cout << "Neural Network on CPU Compute Time: " << elapsed_time << std::endl;
     auto done = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(done-started).count();
 
